@@ -1,22 +1,19 @@
-# Search Up or Down 🔍📈
+# Search Sprint
 
-A simple **"Up or Down"** guessing game based on how popular keywords are searched on Google — month by month.
+A responsive higher-or-lower game about estimated monthly Google searches. Each correct answer raises the difficulty: the search-volume gap narrows, and the pool shifts toward more specific phrases. Your best streak is saved in your browser.
 
-You see a keyword (e.g. "sweater" or "air conditioner"), and you guess whether its Google searches went **UP** ⬆️ or **DOWN** ⬇️ from one month to the next. Patterns are modeled on real seasonal search behavior.
+## Play
 
-## 🎮 How to Play
-1. Look at the keyword and month shown on screen.
-2. Guess: will searches for it go **UP** or **DOWN** next month?
-3. +1 point for each correct guess (+2 bonus every 5-streak).
-4. 3 lives total — three wrong guesses ends the round.
+Open the live game at https://epidemikgg.github.io/search-up-or-down/ (GitHub Pages must be enabled for the repository).
 
-## 🧠 Why Some Keywords Peak in Certain Months
-Based on seasonal search behavior ([Google Trends](https://trends.google.com)): "Christmas gifts" peaks in December, "tax filing" in March/April, "air conditioner" in July, "Halloween costumes" in October, etc.
+## Search volume data
 
-## ▶️ Play Online (GitHub Pages)
-Once GitHub Pages is enabled, play at:
+The game includes a broad hand-curated pool of phrases and illustrative global monthly-volume estimates for gameplay. These are not verified Google Ads figures or live data. For authoritative monthly search-volume ranges, export keyword data from Google Ads Keyword Planner and replace the in-page dataset in index.html.
 
-**https://epidemikgg.github.io/search-up-or-down/**
+## Run locally
 
-## 🛠 Tech
-Plain HTML/CSS/JS in a single `index.html`, no dependencies. Keyword monthly multipliers are illustrative, inspired by typical Google Trends seasonal patterns.
+Open index.html in any modern browser. No build step or server is required.
+
+## Publish
+
+The repository can be served with GitHub Pages from the main branch and root folder.
