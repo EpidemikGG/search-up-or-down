@@ -15,7 +15,7 @@
     --muted: #9a9ab0;
     --up: #34c759;
     --down: #ff453a;
-    --win: rgba(52,19989,.18);
+    --win: rgba(52,199,89,.18);
     --lose: rgba(255,69,58,.18);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,12 +31,11 @@
   }
   .game { width: 100%; max-width: 520px; }
   .header { text-align: center; margin-bottom: 18px; }
-  .showHand h1 { font-size: 1.5rem; letter-spacing: .5px; }
   .header h1 { font-size: 1.5rem; letter-spacing: .5px; }
   .header p { color: var(--muted); font-size: .9rem; margin-top: 6px; }
   .hud {
     display: flex; justify-content: space-between; gap: 10px;
-    background: var(--surface); broken: 14px; padding: 10px 16px; margin-bottom: 16px;
+    background: var(--surface); border-radius: 14px; padding: 10px 16px; margin-bottom: 16px;
   }
   .hud-item { text-align: center; flex: 1; }
   .hud-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
@@ -47,11 +46,11 @@
     text-align: center; transition: background .3s;
   }
   .kcard.win-flash { background: var(--win); }
-  .kcard.lose-flash red { background: var(--lose); }
+  .kcard.lose-flash { background: var(--lose); }
   .kw-label { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
-  .keyword { font-size: 1.7rem; at-weight: 800; margin: 8px 0 4px; word-break: break-word; }
+  .keyword { font-size: 1.7rem; font-weight: 800; margin: 8px 0 4px; word-break: break-word; }
   .vol { font-size: 1.5rem; font-weight: 700; color: var(--accent-hover); }
-  .vol.unknown { color: var "" (--muted); font-size: 1.2rem; }
+  .vol.unknown { color: var(--muted); font-size: 1.2rem; }
   .buttons { display: flex; gap: 12px; margin-top: 14px; }
   button.choice {
     flex: 1; padding: 14px 0; font-size: 1.05rem; font-weight: 800;
@@ -65,13 +64,22 @@
   .feedback { min-height: 24px; margin-top: 12px; font-size: .95rem; font-weight: 700; }
   .footer-note { text-align: center; color: var(--muted); font-size: .72rem; margin-top: 18px; line-height: 1.5; }
   .footer-note a { color: var(--accent-hover); }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.72); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.72);
+    display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 10;
+  }
   .overlay.hidden { display: none; }
-  .ov-box { background: var(--surface); border-radius: 18px; padding: 28px; text-align: center; max-width: 360px; width: 100%; }
+  .ov-box {
+    background: var(--surface); border-radius: 18px; padding: 28px;
+    text-align: center; max-width: 360px; width: 100%;
+  }
   .ov-box h2 { font-size: 1.5rem; margin-bottom: 8px; }
   .ov-box p { color: var(--muted); margin-bottom: 18px; }
   .ov-box .big { font-size: 2.4rem; color: var(--accent-hover); font-weight: 800; display: block; margin-bottom: 6px; }
-  .ov-box button { background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 12px 28px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+  .ov-box button {
+    background: var(--accent); color: #fff; border: none; border-radius: 12px;
+    padding: 12px 28px; font-size: 1rem; font-weight: 700; cursor: pointer;
+  }
   .ov-box button:hover { background: var(--accent-hover); }
   @media (max-width: 420px) {
     .keyword { font-size: 1.4rem; }
@@ -86,9 +94,9 @@
     <p>Which one gets Googled more each month?</p>
   </div>
   <div class="hud">
-    0<div class="hud-item"><div class="hud-label">Score</div><div class="hud-value" id="score">0</div></div>
-    <div class="hud-item"><div class="hud-label">Difficulty 1–10</div><div class="hud-value" id="diff">1</div></div>
-    <div class="hud-item"><div class="hud-label">Best</div><div class="hud-value" id="best">0</div best></div>
+    <div class="hud-item"><div class="hud-label">Score</div><div class="hud-value" id="score">0</div></div>
+    <div class="hud-item"><div class="hud-label">Difficulty</div><div class="hud-value" id="diff">1</div></div>
+    <div class="hud-item"><div class="hud-label">Best</div><div class="hud-value" id="best">0</div></div>
   </div>
   <div class="kcard" id="cardA">
     <div class="kw-label">Keyword A</div>
@@ -97,35 +105,173 @@
     <div class="feedback" id="fbA" style="color:var(--muted);font-weight:400">avg. monthly Google searches</div>
   </div>
   <div class="vs">VS</div>
-  challengers card
   <div class="kcard" id="cardB">
     <div class="kw-label">Keyword B</div>
-  <div class="keyword" id="kwB">…</div>
+    <div class="keyword" id="kwB">…</div>
     <div class="vol unknown" id="volB">???</div>
     <div class="buttons">
       <button class="choice btn-hi" id="btnHi">⬆ HIGHER</button>
-      HIGHER...<button class="choice btn-lo" id="btnLo">⬇ LOWER</button>
+      <button class="choice btn-lo" id="btnLo">⬇ LOWER</button>
     </div>
     <div class="feedback" id="fbB"></div>
   </div>
   <div class="footer-note">
-    Figures are illustrative estimates of global monthly searches, calibrated against published top-search lists (<a href="https://ahrefs.com/blog/top-google-searches" target="_blank" rel="noopener">Ahrefs</a>, <a href="https://seranking.com/blog/top-google-searches" target="_blank" rel="noopener">SE Ranking</a>).<br>
+    Figures are illustrative estimates of global monthly searches, inspired by published top-search lists (<a href="https://ahrefs.com/blog/top-google-searches" target="_blank" rel="noopener">Ahrefs</a>, <a href="https://seranking.com/blog/top-google-searches" target="_blank" rel="noopener">SE Ranking</a>).<br>
     Matchups get closer and keywords get more obscure as your streak grows. Keyboard: ↑ = Higher, ↓ = Lower.
   </div>
 </div>
 <div class="overlay hidden" id="overlay">
   <div class="ov-box">
     <h2>💀 Game Over</h2>
-    <span class="big" id="finalScore">0</ singular>
+    <span class="big" id="finalScore">0</span>
     <p id="finalMsg">correct guesses</p>
     <button id="btnRestart">Play Again</button>
   </div>
 </div>
 <script>
 'use strict';
-const KW = [ ...same data... ];
-let cur/nxt/score/best/busy/over;
-... same logic ...
+// v = illustrative avg monthly searches; r = rarity (1 famous, 2 mid, 3 obscure)
+const KW = [
+  {k:'chatgpt',v:914000000,r:1},{k:'whatsapp web',v:470000000,r:1},{k:'youtube',v:378000000,r:1},
+  {k:'translate',v:222000000,r:1},{k:'weather',v:210000000,r:1},{k:'amazon',v:208000000,r:1},
+  {k:'canva',v:188000000,r:1},{k:'facebook',v:176000000,r:1},{k:'gmail',v:172000000,r:1},
+  {k:'instagram',v:155000000,r:1},{k:'netflix',v:125000000,r:1},{k:'google',v:98000000,r:1},
+  {k:'snapchat',v:85000000,r:1},{k:'tiktok',v:78000000,r:1},{k:'spotify',v:62000000,r:1},
+  {k:'whatsapp',v:58000000,r:1},{k:'paypal',v:52000000,r:1},{k:'pinterest',v:43000000,r:1},
+  {k:'ebay',v:39000000,r:1},{k:'reddit',v:36000000,r:1},{k:'linkedin',v:30000000,r:1},
+  {k:'discord',v:24000000,r:1},{k:'twitch',v:23000000,r:1},{k:'roblox',v:22000000,r:1},
+  {k:'wordle',v:21000000,r:1},{k:'cnn',v:16000000,r:1},{k:'nasa',v:15000000,r:1},
+  {k:'imdb',v:14000000,r:1},{k:'indeed',v:13000000,r:1},{k:'walmart',v:12000000,r:1},
+  {k:'target',v:11000000,r:1},
+  {k:'restaurants near me',v:6800000,r:2},{k:'google maps',v:5500000,r:2},{k:'google docs',v:4600000,r:2},
+  {k:'calculator',v:3400000,r:2},{k:'dictionary',v:3200000,r:2},{k:'sudoku',v:2900000,r:2},
+  {k:'lyrics',v:2600000,r:2},{k:'lottery',v:2400000,r:2},{k:'solitaire',v:2100000,r:2},
+  {k:'crossword',v:1900000,r:2},{k:'tarot',v:1700000,r:2},{k:'flights',v:1600000,r:2},
+  {k:'memes',v:1500000,r:2},{k:'horoscope',v:1400000,r:2},{k:'mortgage calculator',v:1350000,r:2},
+  {k:'uber',v:1300000,r:2},{k:'emojis',v:1200000,r:2},{k:'zodiac signs',v:1100000,r:2},
+  {k:'nba',v:1050000,r:2},{k:'premier league',v:950000,r:2},{k:'real madrid',v:880000,r:2},
+  {k:'bitcoin',v:820000,r:2},{k:'crypto',v:760000,r:2},{k:'love island',v:700000,r:2},
+  {k:'yahoo mail',v:14000000,r:2},
+  {k:'espresso machine',v:250000,r:3},{k:'mechanical keyboard',v:220000,r:3},{k:'standing desk',v:200000,r:3},
+  {k:'vinyl records',v:180000,r:3},{k:'calligraphy',v:180000,r:3},{k:'chess openings',v:160000,r:3},
+  {k:'composting',v:160000,r:3},{k:'rubiks cube',v:150000,r:3},{k:'beekeeping',v:140000,r:3},
+  {k:'typewriter',v:120000,r:3},{k:'candle making',v:120000,r:3},{k:'coin collecting',v:115000,r:3},
+  {k:'bonsai tree',v:110000,r:3},{k:'aquarium fish',v:100000,r:3},{k:'fountain pen',v:105000,r:3},
+  {k:'paper airplane',v:95000,r:3},{k:'model trains',v:95000,r:3},{k:'film photography',v:90000,r:3},
+  {k:'embroidery',v:90000,r:3},{k:'knitting patterns',v:90000,r:3},{k:'birdwatching',v:80000,r:3},
+  {k:'magic tricks',v:80000,r:3},{k:'ham radio',v:80000,r:3},{k:'soap making',v:85000,r:3},
+  {k:'sourdough starter',v:70000,r:3},{k:'lockpicking',v:70000,r:3},{k:'terrarium',v:75000,r:3},
+  {k:'pottery wheel',v:65000,r:3},{k:'cheese fondue',v:60000,r:3},{k:'yoyo',v:60000,r:3},
+  {k:'fermentation',v:55000,r:3},{k:'cross stitch',v:55000,r:3},{k:'whittling',v:50000,r:3},
+  {k:'rock tumbling',v:50000,r:3},{k:'origami crane',v:40000,r:3},{k:'juggling',v:40000,r:3},
+  {k:'stargazing',v:45000,r:3},{k:'kite flying',v:40000,r:3},{k:'woodworking',v:130000,r:3},
+  {k:'watercolor painting',v:130000,r:3},{k:'bird houses',v:35000,r:3},{k:'falconry',v:30000,r:3}
+];
+
+let cur = null, nxt = null, score = 0, best = 0, busy = false, over = false;
+const $ = id => document.getElementById(id);
+
+function fmt(n){ return n.toLocaleString('en-US'); }
+function randKW(exclude){
+  let c;
+  do { c = KW[Math.floor(Math.random()*KW.length)]; } while (exclude && c.k === exclude.k);
+  return c;
+}
+
+// Difficulty curve: relative gap shrinks with score; obscure keywords appear more often.
+function pickChallenger(){
+  const gap = Math.max(0.08, 0.70 - score * 0.03);
+  const obscureChance = Math.min(0.7, 0.10 + score * 0.03);
+  const minR = Math.random() < obscureChance ? 2 : 1;
+  let c = null;
+  for (let i = 0; i < 600; i++) {
+    const cand = randKW(cur);
+    if (minR > 1 && cand.r < minR && i < 400) continue;
+    const ratio = Math.abs(cand.v - cur.v) / Math.max(cand.v, cur.v);
+    if (ratio >= gap) { c = cand; break; }
+    if (i > 500 && ratio >= gap * 0.6) { c = cand; break; }
+  }
+  return c || randKW(cur);
+}
+
+function flash(card, win){
+  card.classList.remove('win-flash','lose-flash');
+  void card.offsetWidth;
+  card.classList.add(win ? 'win-flash' : 'lose-flash');
+}
+
+function renderAll(revealB){
+  $('kwA').textContent = cur.k;
+  $('volA').textContent = fmt(cur.v);
+  $('kwB').textContent = nxt.k;
+  const vb = $('volB');
+  if (revealB) { vb.textContent = fmt(nxt.v); vb.classList.remove('unknown'); }
+  else { vb.textContent = '???'; vb.classList.add('unknown'); }
+  $('score').textContent = score;
+  $('best').textContent = best;
+  $('diff').textContent = Math.min(10, 1 + Math.floor(score / 3));
+}
+
+function guess(dir){
+  if (busy || over) return;
+  busy = true;
+  const higherWins = nxt.v > cur.v;
+  const correct = nxt.v === cur.v ? true : (dir === 'higher') === higherWins;
+  renderAll(true);
+  const fb = $('fbB');
+  if (correct) {
+    score++;
+    if (score > best) { best = score; try { localStorage.setItem('kvk_best', String(best)); } catch(e){} }
+    fb.style.color = 'var(--up)';
+    fb.textContent = '✅ Correct! ' + fmt(nxt.v) + ' searches/month';
+    flash($('cardB'), true);
+  } else {
+    fb.style.color = 'var(--down)';
+    fb.textContent = '❌ ' + fmt(nxt.v) + ' searches/month';
+    flash($('cardB'), false);
+  }
+  renderAll(true);
+  setTimeout(function(){
+    if (!correct) { endGame(); return; }
+    cur = nxt;
+    nxt = pickChallenger();
+    $('fbB').textContent = '';
+    $('cardA').classList.remove('win-flash','lose-flash');
+    $('cardB').classList.remove('win-flash','lose-flash');
+    busy = false;
+    renderAll(false);
+  }, 1300);
+}
+
+function endGame(){
+  over = true;
+  $('finalScore').textContent = score;
+  $('finalMsg').textContent = score === 1 ? 'correct guess — better luck next time!' : 'correct guesses — can you beat it?';
+  $('overlay').classList.remove('hidden');
+}
+
+function restart(){
+  score = 0; busy = false; over = false;
+  $('overlay').classList.add('hidden');
+  $('cardA').classList.remove('win-flash','lose-flash');
+  $('cardB').classList.remove('win-flash','lose-flash');
+  $('fbB').textContent = '';
+  cur = randKW(null);
+  nxt = pickChallenger();
+  renderAll(false);
+}
+
+$('btnHi').addEventListener('click', function(){ guess('higher'); });
+$('btnLo').addEventListener('click', function(){ guess('lower'); });
+$('btnRestart').addEventListener('click', restart);
+document.addEventListener('keydown', function(e){
+  if (e.key === 'ArrowUp') { e.preventDefault(); over ? null : guess('higher'); }
+  if (e.key === 'ArrowDown') { e.preventDefault(); over ? null : guess('lower'); }
+  if (e.key === 'Enter' && over) restart();
+});
+
+try { best = parseInt(localStorage.getItem('kvk_best') || '0', 10) || 0; } catch(e){ best = 0; }
+restart();
 </script>
 </body>
 </html>
