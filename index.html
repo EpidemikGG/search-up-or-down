@@ -1,277 +1,240 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Keyword vs Keyword — Higher or Lower? (Google Searches)</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#10141d">
+<title>Search Sprint — Higher or Lower?</title>
 <style>
-  :root {
-    --bg: #12121a;
-    --surface: #1c1c28;
-    --card: #232334;
-    --accent: #6d4aff;
-    --accent-hover: #8268ff;
-    --text: #eeeef5;
-    --muted: #9a9ab0;
-    --up: #34c759;
-    --down: #ff453a;
-    --win: rgba(52,199,89,.18);
-    --lose: rgba(255,69,58,.18);
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-  .game { width: 100%; max-width: 520px; }
-  .header { text-align: center; margin-bottom: 18px; }
-  .header h1 { font-size: 1.5rem; letter-spacing: .5px; }
-  .header p { color: var(--muted); font-size: .9rem; margin-top: 6px; }
-  .hud {
-    display: flex; justify-content: space-between; gap: 10px;
-    background: var(--surface); border-radius: 14px; padding: 10px 16px; margin-bottom: 16px;
-  }
-  .hud-item { text-align: center; flex: 1; }
-  .hud-label { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-  .hud-value { font-size: 1.2rem; font-weight: 700; margin-top: 2px; }
-  .vs { text-align: center; color: var(--muted); font-weight: 800; letter-spacing: 3px; font-size: .9rem; margin: 8px 0; }
-  .kcard {
-    background: var(--card); border-radius: 16px; padding: 22px 20px;
-    text-align: center; transition: background .3s;
-  }
-  .kcard.win-flash { background: var(--win); }
-  .kcard.lose-flash { background: var(--lose); }
-  .kw-label { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; }
-  .keyword { font-size: 1.7rem; font-weight: 800; margin: 8px 0 4px; word-break: break-word; }
-  .vol { font-size: 1.5rem; font-weight: 700; color: var(--accent-hover); }
-  .vol.unknown { color: var(--muted); font-size: 1.2rem; }
-  .buttons { display: flex; gap: 12px; margin-top: 14px; }
-  button.choice {
-    flex: 1; padding: 14px 0; font-size: 1.05rem; font-weight: 800;
-    border: none; border-radius: 12px; cursor: pointer; color: #fff;
-    letter-spacing: 1px; transition: transform .08s, filter .15s;
-  }
-  button.choice:hover { filter: brightness(1.15); }
-  button.choice:active { transform: scale(.97); }
-  .btn-hi { background: var(--up); }
-  .btn-lo { background: var(--down); }
-  .feedback { min-height: 24px; margin-top: 12px; font-size: .95rem; font-weight: 700; }
-  .footer-note { text-align: center; color: var(--muted); font-size: .72rem; margin-top: 18px; line-height: 1.5; }
-  .footer-note a { color: var(--accent-hover); }
-  .overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.72);
-    display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 10;
-  }
-  .overlay.hidden { display: none; }
-  .ov-box {
-    background: var(--surface); border-radius: 18px; padding: 28px;
-    text-align: center; max-width: 360px; width: 100%;
-  }
-  .ov-box h2 { font-size: 1.5rem; margin-bottom: 8px; }
-  .ov-box p { color: var(--muted); margin-bottom: 18px; }
-  .ov-box .big { font-size: 2.4rem; color: var(--accent-hover); font-weight: 800; display: block; margin-bottom: 6px; }
-  .ov-box button {
-    background: var(--accent); color: #fff; border: none; border-radius: 12px;
-    padding: 12px 28px; font-size: 1rem; font-weight: 700; cursor: pointer;
-  }
-  .ov-box button:hover { background: var(--accent-hover); }
-  @media (max-width: 420px) {
-    .keyword { font-size: 1.4rem; }
-    .vol { font-size: 1.25rem; }
-  }
-</style>
-</head>
-<body>
-<div class="game">
-  <div class="header">
-    <h1>🔍 Keyword vs Keyword</h1>
-    <p>Which one gets Googled more each month?</p>
-  </div>
-  <div class="hud">
-    <div class="hud-item"><div class="hud-label">Score</div><div class="hud-value" id="score">0</div></div>
-    <div class="hud-item"><div class="hud-label">Difficulty</div><div class="hud-value" id="diff">1</div></div>
-    <div class="hud-item"><div class="hud-label">Best</div><div class="hud-value" id="best">0</div></div>
-  </div>
-  <div class="kcard" id="cardA">
-    <div class="kw-label">Keyword A</div>
-    <div class="keyword" id="kwA">…</div>
-    <div class="vol" id="volA">—</div>
-    <div class="feedback" id="fbA" style="color:var(--muted);font-weight:400">avg. monthly Google searches</div>
-  </div>
-  <div class="vs">VS</div>
-  <div class="kcard" id="cardB">
-    <div class="kw-label">Keyword B</div>
-    <div class="keyword" id="kwB">…</div>
-    <div class="vol unknown" id="volB">???</div>
-    <div class="buttons">
-      <button class="choice btn-hi" id="btnHi">⬆ HIGHER</button>
-      <button class="choice btn-lo" id="btnLo">⬇ LOWER</button>
-    </div>
-    <div class="feedback" id="fbB"></div>
-  </div>
-  <div class="footer-note">
-    Figures are illustrative estimates of global monthly searches, inspired by published top-search lists (<a href="https://ahrefs.com/blog/top-google-searches" target="_blank" rel="noopener">Ahrefs</a>, <a href="https://seranking.com/blog/top-google-searches" target="_blank" rel="noopener">SE Ranking</a>).<br>
-    Matchups get closer and keywords get more obscure as your streak grows. Keyboard: ↑ = Higher, ↓ = Lower.
-  </div>
-</div>
-<div class="overlay hidden" id="overlay">
-  <div class="ov-box">
-    <h2>💀 Game Over</h2>
-    <span class="big" id="finalScore">0</span>
-    <p id="finalMsg">correct guesses</p>
-    <button id="btnRestart">Play Again</button>
-  </div>
-</div>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap');
+:root{color-scheme:dark;--bg:#10141d;--panel:#191f2b;--line:#2a3342;--text:#f4f4ef;--muted:#98a3b5;--lime:#c8f36a;--coral:#ff786b;--blue:#91b8ff}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#202a3d 0,transparent 55%),var(--bg);color:var(--text);font-family:'DM Sans',sans-serif}button{font:inherit}.shell{max-width:1120px;margin:auto;padding:28px 24px 48px}.top{display:flex;align-items:center;justify-content:space-between}.brand{font-weight:800;letter-spacing:-.06em;font-size:22px}.brand span{color:var(--lime)}.tag{font:11px 'DM Mono';letter-spacing:.12em;color:var(--muted);text-transform:uppercase}.intro{text-align:center;margin:45px 0 28px}.eyebrow{color:var(--lime);font:11px 'DM Mono';letter-spacing:.16em;text-transform:uppercase}.intro h1{font-size:clamp(38px,6vw,68px);letter-spacing:-.065em;line-height:.98;margin:13px 0}.intro p{color:var(--muted);font-size:16px}.game{max-width:920px;margin:auto}.stats{display:flex;justify-content:center;gap:10px;margin-bottom:20px}.pill{border:1px solid var(--line);border-radius:999px;padding:9px 15px;color:var(--muted);font:12px 'DM Mono'}.pill b{color:var(--text);font-weight:500}.pill.level b{color:var(--lime)}.arena{display:grid;grid-template-columns:1fr 80px 1fr;align-items:stretch;gap:0;position:relative}.card{background:linear-gradient(145deg,#202838,#171d28);border:1px solid var(--line);border-radius:18px;min-height:292px;padding:28px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative}.card:after{content:'';position:absolute;width:190px;height:190px;border:1px solid #ffffff09;border-radius:50%;right:-70px;top:-65px;box-shadow:0 0 0 28px #ffffff04,0 0 0 56px #ffffff03;pointer-events:none}.label{font:10px 'DM Mono';letter-spacing:.15em;color:var(--muted);text-transform:uppercase}.keyword{font-size:clamp(28px,4vw,42px);font-weight:700;letter-spacing:-.055em;line-height:1.05;max-width:330px}.volume{font:500 34px 'DM Mono';letter-spacing:-.06em;color:var(--lime);margin-top:10px}.volume small{font:11px 'DM Sans';letter-spacing:0;color:var(--muted)}.unknown{font:40px 'DM Mono';color:var(--blue);margin-top:8px}.vs{align-self:center;justify-self:center;z-index:1;border:1px solid var(--line);background:var(--bg);width:47px;height:47px;border-radius:50%;display:grid;place-items:center;font:11px 'DM Mono';color:var(--muted)}.actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}.choice-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.choice{border:1px solid #ffffff1b;border-radius:12px;background:#ffffff08;color:var(--text);height:54px;cursor:pointer;font-weight:700;transition:.18s}.choice:hover:not(:disabled){transform:translateY(-2px);border-color:var(--lime);background:#c8f36a12}.choice em{font-style:normal;color:var(--lime)}.choice:disabled{cursor:default}.choice.correct{border-color:var(--lime);background:#c8f36a1a}.choice.wrong{border-color:var(--coral);background:#ff786b17}.feedback{text-align:center;min-height:27px;color:var(--muted);font-size:14px}.feedback.good{color:var(--lime)}.feedback.bad{color:var(--coral)}.next{border:0;border-radius:10px;background:var(--lime);color:#111713;font-weight:800;padding:13px 22px;cursor:pointer;display:none;margin:auto}.next.show{display:block}.start{border:0;border-radius:10px;background:var(--lime);color:#111713;font-weight:800;padding:15px 28px;cursor:pointer;margin-top:8px}.start:hover,.next:hover{filter:brightness(1.08)}.overlay{position:absolute;inset:0;border-radius:18px;background:#10141ddf;backdrop-filter:blur(8px);z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px}.overlay h2{font-size:34px;letter-spacing:-.05em;margin:0 0 8px}.overlay p{color:var(--muted);max-width:430px;line-height:1.55}.hidden{display:none!important}.foot{max-width:920px;margin:24px auto 0;display:flex;justify-content:space-between;gap:18px;color:var(--muted);font-size:11px;line-height:1.5}.foot a{color:var(--blue)}.how{max-width:920px;margin:48px auto 0;border-top:1px solid var(--line);padding-top:21px;display:flex;gap:30px;color:var(--muted);font-size:13px;line-height:1.6}.how strong{color:var(--text)}@media(max-width:680px){.shell{padding:20px 16px}.intro{margin:34px 0 22px}.arena{grid-template-columns:1fr;gap:10px}.card{min-height:178px;padding:21px}.keyword{font-size:30px}.vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:38px;height:38px}.volume{font-size:28px}.foot,.how{flex-direction:column;gap:10px}.tag{font-size:9px}.stats{gap:5px}.pill{padding:8px 10px;font-size:10px}}
+</style></head>
+<body><main class="shell"><header class="top"><div class="brand">SEARCH<span>SPRINT</span></div><div class="tag">A little search intuition</div></header><section class="intro"><div class="eyebrow">The search volume guessing game</div><h1>Higher or lower?</h1><p>Which search gets more Google searches each month?</p></section><section class="game"><div class="stats"><div class="pill">STREAK&nbsp; <b id="score">0</b></div><div class="pill level">DIFFICULTY&nbsp; <b id="level">1</b></div><div class="pill">BEST&nbsp; <b id="best">0</b></div></div><div class="arena" id="arena"><article class="card"><div class="label">Monthly searches</div><div class="keyword" id="leftWord"></div><div class="volume" id="leftVol"></div></article><div class="vs">VS</div><article class="card"><div><div class="label">Monthly searches</div><div class="keyword" id="rightWord"></div><div class="unknown" id="rightVol">?</div></div></article><div class="overlay" id="overlay"><div class="eyebrow">Can you read the internet?</div><h2>Trust your instincts.</h2><p>Pick the phrase with more monthly searches. Each correct answer makes the next comparison closer — and tougher.</p><button class="start" id="start">Start playing&nbsp; →</button></div></div><div class="actions"><div class="choice-row"><button class="choice" id="higher">↑ &nbsp; <em>Higher</em></button><button class="choice" id="lower">↓ &nbsp; <em>Lower</em></button></div><div class="feedback" id="feedback">Choose whether the right-hand search is higher or lower.</div><button class="next" id="next">Next comparison&nbsp; →</button></div></section><section class="how"><div><strong>How to play</strong><br>Guess if the right search phrase is searched more or less often than the left one. Streaks make the gap smaller.</div><div><strong>What the numbers mean</strong><br>This playable sample uses approximate monthly search-volume tiers. It is not a live Google Ads feed; real keyword volumes require Google Ads Keyword Planner data.</div></section><footer class="foot"><span>Search Sprint · A fan-made search volume guessing game.</span><span>Volume figures are estimates for gameplay, not marketing forecasts.</span></footer></main>
 <script>
-'use strict';
-// v = illustrative avg monthly searches; r = rarity (1 famous, 2 mid, 3 obscure)
-const KW = [
-  {k:'chatgpt',v:914000000,r:1},{k:'whatsapp web',v:470000000,r:1},{k:'youtube',v:378000000,r:1},
-  {k:'translate',v:222000000,r:1},{k:'weather',v:210000000,r:1},{k:'amazon',v:208000000,r:1},
-  {k:'canva',v:188000000,r:1},{k:'facebook',v:176000000,r:1},{k:'gmail',v:172000000,r:1},
-  {k:'instagram',v:155000000,r:1},{k:'netflix',v:125000000,r:1},{k:'google',v:98000000,r:1},
-  {k:'snapchat',v:85000000,r:1},{k:'tiktok',v:78000000,r:1},{k:'spotify',v:62000000,r:1},
-  {k:'whatsapp',v:58000000,r:1},{k:'paypal',v:52000000,r:1},{k:'pinterest',v:43000000,r:1},
-  {k:'ebay',v:39000000,r:1},{k:'reddit',v:36000000,r:1},{k:'linkedin',v:30000000,r:1},
-  {k:'discord',v:24000000,r:1},{k:'twitch',v:23000000,r:1},{k:'roblox',v:22000000,r:1},
-  {k:'wordle',v:21000000,r:1},{k:'cnn',v:16000000,r:1},{k:'nasa',v:15000000,r:1},
-  {k:'imdb',v:14000000,r:1},{k:'indeed',v:13000000,r:1},{k:'walmart',v:12000000,r:1},
-  {k:'target',v:11000000,r:1},
-  {k:'restaurants near me',v:6800000,r:2},{k:'google maps',v:5500000,r:2},{k:'google docs',v:4600000,r:2},
-  {k:'calculator',v:3400000,r:2},{k:'dictionary',v:3200000,r:2},{k:'sudoku',v:2900000,r:2},
-  {k:'lyrics',v:2600000,r:2},{k:'lottery',v:2400000,r:2},{k:'solitaire',v:2100000,r:2},
-  {k:'crossword',v:1900000,r:2},{k:'tarot',v:1700000,r:2},{k:'flights',v:1600000,r:2},
-  {k:'memes',v:1500000,r:2},{k:'horoscope',v:1400000,r:2},{k:'mortgage calculator',v:1350000,r:2},
-  {k:'uber',v:1300000,r:2},{k:'emojis',v:1200000,r:2},{k:'zodiac signs',v:1100000,r:2},
-  {k:'nba',v:1050000,r:2},{k:'premier league',v:950000,r:2},{k:'real madrid',v:880000,r:2},
-  {k:'bitcoin',v:820000,r:2},{k:'crypto',v:760000,r:2},{k:'love island',v:700000,r:2},
-  {k:'yahoo mail',v:14000000,r:2},
-  {k:'espresso machine',v:250000,r:3},{k:'mechanical keyboard',v:220000,r:3},{k:'standing desk',v:200000,r:3},
-  {k:'vinyl records',v:180000,r:3},{k:'calligraphy',v:180000,r:3},{k:'chess openings',v:160000,r:3},
-  {k:'composting',v:160000,r:3},{k:'rubiks cube',v:150000,r:3},{k:'beekeeping',v:140000,r:3},
-  {k:'typewriter',v:120000,r:3},{k:'candle making',v:120000,r:3},{k:'coin collecting',v:115000,r:3},
-  {k:'bonsai tree',v:110000,r:3},{k:'aquarium fish',v:100000,r:3},{k:'fountain pen',v:105000,r:3},
-  {k:'paper airplane',v:95000,r:3},{k:'model trains',v:95000,r:3},{k:'film photography',v:90000,r:3},
-  {k:'embroidery',v:90000,r:3},{k:'knitting patterns',v:90000,r:3},{k:'birdwatching',v:80000,r:3},
-  {k:'magic tricks',v:80000,r:3},{k:'ham radio',v:80000,r:3},{k:'soap making',v:85000,r:3},
-  {k:'sourdough starter',v:70000,r:3},{k:'lockpicking',v:70000,r:3},{k:'terrarium',v:75000,r:3},
-  {k:'pottery wheel',v:65000,r:3},{k:'cheese fondue',v:60000,r:3},{k:'yoyo',v:60000,r:3},
-  {k:'fermentation',v:55000,r:3},{k:'cross stitch',v:55000,r:3},{k:'whittling',v:50000,r:3},
-  {k:'rock tumbling',v:50000,r:3},{k:'origami crane',v:40000,r:3},{k:'juggling',v:40000,r:3},
-  {k:'stargazing',v:45000,r:3},{k:'kite flying',v:40000,r:3},{k:'woodworking',v:130000,r:3},
-  {k:'watercolor painting',v:130000,r:3},{k:'bird houses',v:35000,r:3},{k:'falconry',v:30000,r:3}
-];
+// Broad, hand-curated keyword pool with approximate global monthly-volume tiers for gameplay.
+// Replace with licensed Google Ads Keyword Planner exports for verified monthly search volumes.
+const raw = `youtube|1|5000000000
+facebook|1|3000000000
+weather|1|1500000000
+google|1|1200000000
+amazon|1|900000000
+instagram|1|800000000
+translate|1|700000000
+gmail|1|650000000
+chatgpt|1|600000000
+whatsapp|1|550000000
+netflix|1|450000000
+google maps|1|400000000
+news|1|350000000
+twitter|1|300000000
+tiktok|1|280000000
+calculator|1|250000000
+time|1|230000000
+reddit|1|210000000
+spotify|1|200000000
+linkedin|1|180000000
+apple|1|170000000
+ebay|1|160000000
+maps|1|150000000
+gmail login|1|140000000
+canva|1|130000000
+restaurants near me|1|120000000
+amazon prime|1|115000000
+weather tomorrow|1|110000000
+google drive|1|105000000
+roblox|1|100000000
+wordle|1|95000000
+pinterest|1|90000000
+zoom|1|85000000
+flights|1|80000000
+paypal|1|75000000
+google classroom|1|70000000
+Walmart|1|68000000
+indeed|1|65000000
+iphone|1|62000000
+news today|1|60000000
+Disney plus|1|58000000
+coffee|1|55000000
+best pizza near me|1|52000000
+airbnb|1|50000000
+target|1|48000000
+prime video|1|46000000
+football|1|44000000
+NBA|1|42000000
+Taylor Swift|1|40000000
+AI|1|38000000
+NASA|1|36000000
+how to lose weight|2|34000000
+easy dinner recipes|2|32000000
+chicken recipes|2|30000000
+healthy breakfast ideas|2|28000000
+banana bread recipe|2|26000000
+how to make pancakes|2|24000000
+air fryer recipes|2|22000000
+lasagna recipe|2|20000000
+vegan recipes|2|19000000
+meal prep ideas|2|18000000
+best protein powder|2|17000000
+intermittent fasting|2|16000000
+symptoms of diabetes|2|15000000
+how many calories in an egg|2|14000000
+home workout|2|13000000
+yoga for beginners|2|12000000
+sleep music|2|11500000
+meditation for anxiety|2|11000000
+dog breeds|2|10500000
+cat names|2|10000000
+golden retriever|2|9500000
+how to train a puppy|2|9000000
+best dog food|2|8500000
+indoor plants|2|8000000
+how to grow tomatoes|2|7500000
+best house plants|2|7000000
+how to make coffee|2|6800000
+espresso machine|2|6500000
+best running shoes|2|6200000
+how to start running|2|6000000
+beginner workout plan|2|5800000
+protein rich foods|2|5500000
+vitamin D benefits|2|5200000
+how to lower cholesterol|2|5000000
+signs of dehydration|2|4800000
+how to stop snoring|2|4600000
+best sunscreen|2|4400000
+skin care routine|2|4200000
+how to get rid of acne|2|4000000
+hair loss treatment|2|3800000
+best shampoo for curly hair|2|3600000
+how to cook rice|2|3400000
+overnight oats|2|3200000
+homemade pizza dough|2|3000000
+chocolate chip cookies recipe|2|2800000
+gluten free bread recipe|2|2600000
+best blender for smoothies|2|2400000
+how to clean an oven|2|2200000
+how to remove red wine stains|2|2000000
+best vacuum cleaner|2|1800000
+standing desk|2|1700000
+noise cancelling headphones|2|1600000
+best budget laptop|2|1500000
+wireless earbuds|2|1400000
+how to back up iphone|2|1300000
+best password manager|2|1200000
+free photo editor|2|1100000
+how to make a website|2|1000000
+best email marketing software|3|950000
+project management tools|3|900000
+CRM software|3|850000
+how to start a small business|3|800000
+business plan template|3|750000
+best online courses|3|700000
+learn Python|3|650000
+JavaScript tutorial|3|600000
+Excel formulas|3|560000
+how to use a pivot table|3|520000
+Canva presentation templates|3|480000
+free resume template|3|440000
+cover letter examples|3|400000
+remote jobs no experience|3|380000
+data analyst salary|3|360000
+software engineer interview questions|3|340000
+how to negotiate salary|3|320000
+best noise cancelling headphones for travel|3|300000
+carry on luggage size|3|280000
+best time to visit Japan|3|260000
+things to do in Rome|3|240000
+cheap flights to London|3|220000
+all inclusive resorts Mexico|3|200000
+weekend trips from New York|3|190000
+best beaches in Portugal|3|180000
+Northern Lights forecast|3|170000
+how to get a passport|3|160000
+travel insurance comparison|3|150000
+best credit cards for travel|3|140000
+mortgage calculator|3|130000
+how to improve credit score|3|120000
+high yield savings account|3|110000
+compound interest calculator|3|100000
+index funds for beginners|3|95000
+how to file taxes|3|90000
+Roth IRA contribution limits|3|85000
+best budgeting apps|3|80000
+car insurance quote|3|75000
+electric car tax credit|3|70000
+used cars under 10000|3|65000
+best family SUV 2026|3|60000
+how to change a tire|3|55000
+home insurance cost|3|50000
+how to lower energy bill|3|48000
+solar panel installation cost|3|46000
+best air purifier for allergies|3|44000
+robot vacuum for pet hair|3|42000
+small bathroom remodel ideas|3|40000
+modern farmhouse kitchen ideas|3|38000
+how to remove wallpaper|3|36000
+DIY closet organizer|3|34000
+best mattress for back pain|3|32000
+memory foam vs hybrid mattress|3|30000
+how to get rid of fruit flies|3|28000
+natural ant deterrent|3|26000
+best smart thermostat|3|24000
+how to fix a leaky faucet|3|22000
+beginner sourdough starter|3|20000
+best cast iron skillet|3|19000
+how to sharpen kitchen knives|3|18000
+homemade chili crisp recipe|3|17000
+vegetarian meal prep for work|3|16000
+best matcha powder ceremonial grade|3|15000
+gluten free birthday cake near me|3|14000
+quiet cafes with wifi in Austin|3|13000
+dog friendly hotels in Chicago|3|12000
+best compact camera for hiking|3|11000
+mechanical keyboard for programming|3|10000
+beginner astrophotography setup|3|9500
+how to digitize old family photos|3|9000
+watercolor supplies for beginners|3|8500
+free knitting patterns for blankets|3|8000
+easy Halloween costume ideas for couples|3|7500
+indoor herb garden with grow lights|3|7000
+how to build a raised garden bed|3|6500
+best hiking boots for wide feet|3|6000
+one pot vegetarian camping meals|3|5500
+budget itinerary for three days in Kyoto|3|5000
+how to negotiate a job offer with equity|3|4500
+best standing desk for a small apartment|3|4000
+portable espresso maker for backpacking|3|3500
+vegan wedding catering near Denver|3|3000
+custom orthotics covered by insurance|3|2500
+how to propagate a variegated monstera|3|2000
+best lens for northern lights photography|3|1800
+beginner friendly sewing machine for denim|3|1600
+waterproof hiking jacket for petite women|3|1400
+gluten free sourdough starter troubleshooting|3|1200
+family friendly ryokan near Kyoto station|3|1000
+low light indoor plants safe for cats|3|900
+how to remove candle wax from velvet|3|800
+quiet mechanical keyboard for shared office|3|700
+best lightweight tent for tall hikers|3|600
+how to freeze homemade pesto without ice cubes|3|500
+small batch vegan tiramisu without cashews|3|400
+replace zipper slider on vintage leather jacket|3|300
+non toxic paint for a baby's wooden crib|3|250
+repair a cracked ceramic planter with gold|3|200
+best trail running socks for blisters in summer|3|150
+watercolor paper that handles masking fluid well|3|100
+how to store fresh saffron after opening|3|90
+beginner guide to fermenting black garlic at home|3|80
+replace a discontinued 1980s espresso machine gasket|3|70
+custom sized linen curtains for a sloped attic window|3|60
+quiet compact dehumidifier for a closet under stairs|3|50
+repair chipped enamel on a vintage cast iron sink|3|40
+low sugar quince paste recipe without pectin|3|30
+best archival sleeves for panoramic family negatives|3|20
+how to rewire a 1970s Danish teak floor lamp safely|3|10`.trim();
+const data=raw.split('\n').map((line,i)=>{const [term,tier,volume]=line.split('|');return{id:i,term,tier:+tier,volume:+volume}});
+let score=0,best=Number(localStorage.getItem('ss-best')||0),left,right,locked=false,started=false;
+const $=id=>document.getElementById(id);$('best').textContent=best;
+function fmt(n){return n>=1e9?(n/1e9).toFixed(n%1e9===0?0:1)+'B':n>=1e6?(n/1e6).toFixed(n%1e6===0?0:1)+'M':n>=1e3?(n/1e3).toFixed(n%1e3===0?0:1)+'K':String(n)}
+function nextPair(){const minTier=score>=6?3:score>=3?2:1;let pool=data.filter(x=>x.tier>=minTier);if(pool.length<2)pool=data;const targetGap=Math.max(.012,.62*Math.exp(-score/5));let a,b,bestPair=null,bestGap=Infinity;for(let i=0;i<700;i++){const ca=pool[Math.random()*pool.length|0],cb=pool[Math.random()*pool.length|0];if(ca.id===cb.id||ca.volume===cb.volume)continue;const gap=Math.abs(ca.volume-cb.volume)/Math.max(ca.volume,cb.volume);const penalty=Math.abs(gap-targetGap);if(penalty<bestGap){bestPair=[ca,cb];bestGap=penalty}if(gap<=targetGap*1.25){a=ca;b=cb;break}}if(!a)[a,b]=bestPair||[pool[0],pool[1]];if(Math.random()<.5)[a,b]=[b,a];left=a;right=b;$('leftWord').textContent=a.term;$('leftVol').innerHTML=fmt(a.volume)+' <small>searches</small>';$('rightWord').textContent=b.term;$('rightVol').textContent='?';$('feedback').textContent='Choose whether the right-hand search is higher or lower.';$('feedback').className='feedback';$('next').classList.remove('show');$('higher').disabled=$('lower').disabled=false;$('higher').className=$('lower').className='choice';locked=false;$('score').textContent=score;$('level').textContent=score+1}
+function answer(direction){if(locked||!started)return;locked=true;const actual=right.volume>left.volume?'higher':'lower';const correct=direction===actual;$('rightVol').textContent=fmt(right.volume);$('higher').disabled=$('lower').disabled=true;$('higher').classList.toggle('correct',direction==='higher'&&correct);$('lower').classList.toggle('correct',direction==='lower'&&correct);if(!correct){$(''+direction).classList.add('wrong');$('feedback').textContent=`Not quite — ${right.term} gets ${fmt(right.volume)} monthly searches.`;$('feedback').className='feedback bad';$('overlay').innerHTML=`<div class="eyebrow">Run ended</div><h2>${score?score+' in a row!':'Good first round.'}</h2><p>${right.term} gets about ${fmt(right.volume)} monthly searches. Can you beat your best streak?</p><button class="start" id="again">Play again&nbsp; ↻</button>`;$('overlay').classList.remove('hidden');$('again').onclick=()=>{score=0;started=true;$('overlay').classList.add('hidden');nextPair()};}else{score++;$('score').textContent=score;$('feedback').textContent=`Correct! ${right.term} gets about ${fmt(right.volume)} monthly searches.`;$('feedback').className='feedback good';if(score>best){best=score;localStorage.setItem('ss-best',best);$('best').textContent=best}$('next').classList.add('show');$('level').textContent=score+1}}
+$('start').onclick=()=>{started=true;$('overlay').classList.add('hidden');nextPair()};$('higher').onclick=()=>answer('higher');$('lower').onclick=()=>answer('lower');$('next').onclick=nextPair;
+</script></body></html>
 
-let cur = null, nxt = null, score = 0, best = 0, busy = false, over = false;
-const $ = id => document.getElementById(id);
-
-function fmt(n){ return n.toLocaleString('en-US'); }
-function randKW(exclude){
-  let c;
-  do { c = KW[Math.floor(Math.random()*KW.length)]; } while (exclude && c.k === exclude.k);
-  return c;
-}
-
-// Difficulty curve: relative gap shrinks with score; obscure keywords appear more often.
-function pickChallenger(){
-  const gap = Math.max(0.08, 0.70 - score * 0.03);
-  const obscureChance = Math.min(0.7, 0.10 + score * 0.03);
-  const minR = Math.random() < obscureChance ? 2 : 1;
-  let c = null;
-  for (let i = 0; i < 600; i++) {
-    const cand = randKW(cur);
-    if (minR > 1 && cand.r < minR && i < 400) continue;
-    const ratio = Math.abs(cand.v - cur.v) / Math.max(cand.v, cur.v);
-    if (ratio >= gap) { c = cand; break; }
-    if (i > 500 && ratio >= gap * 0.6) { c = cand; break; }
-  }
-  return c || randKW(cur);
-}
-
-function flash(card, win){
-  card.classList.remove('win-flash','lose-flash');
-  void card.offsetWidth;
-  card.classList.add(win ? 'win-flash' : 'lose-flash');
-}
-
-function renderAll(revealB){
-  $('kwA').textContent = cur.k;
-  $('volA').textContent = fmt(cur.v);
-  $('kwB').textContent = nxt.k;
-  const vb = $('volB');
-  if (revealB) { vb.textContent = fmt(nxt.v); vb.classList.remove('unknown'); }
-  else { vb.textContent = '???'; vb.classList.add('unknown'); }
-  $('score').textContent = score;
-  $('best').textContent = best;
-  $('diff').textContent = Math.min(10, 1 + Math.floor(score / 3));
-}
-
-function guess(dir){
-  if (busy || over) return;
-  busy = true;
-  const higherWins = nxt.v > cur.v;
-  const correct = nxt.v === cur.v ? true : (dir === 'higher') === higherWins;
-  renderAll(true);
-  const fb = $('fbB');
-  if (correct) {
-    score++;
-    if (score > best) { best = score; try { localStorage.setItem('kvk_best', String(best)); } catch(e){} }
-    fb.style.color = 'var(--up)';
-    fb.textContent = '✅ Correct! ' + fmt(nxt.v) + ' searches/month';
-    flash($('cardB'), true);
-  } else {
-    fb.style.color = 'var(--down)';
-    fb.textContent = '❌ ' + fmt(nxt.v) + ' searches/month';
-    flash($('cardB'), false);
-  }
-  renderAll(true);
-  setTimeout(function(){
-    if (!correct) { endGame(); return; }
-    cur = nxt;
-    nxt = pickChallenger();
-    $('fbB').textContent = '';
-    $('cardA').classList.remove('win-flash','lose-flash');
-    $('cardB').classList.remove('win-flash','lose-flash');
-    busy = false;
-    renderAll(false);
-  }, 1300);
-}
-
-function endGame(){
-  over = true;
-  $('finalScore').textContent = score;
-  $('finalMsg').textContent = score === 1 ? 'correct guess — better luck next time!' : 'correct guesses — can you beat it?';
-  $('overlay').classList.remove('hidden');
-}
-
-function restart(){
-  score = 0; busy = false; over = false;
-  $('overlay').classList.add('hidden');
-  $('cardA').classList.remove('win-flash','lose-flash');
-  $('cardB').classList.remove('win-flash','lose-flash');
-  $('fbB').textContent = '';
-  cur = randKW(null);
-  nxt = pickChallenger();
-  renderAll(false);
-}
-
-$('btnHi').addEventListener('click', function(){ guess('higher'); });
-$('btnLo').addEventListener('click', function(){ guess('lower'); });
-$('btnRestart').addEventListener('click', restart);
-document.addEventListener('keydown', function(e){
-  if (e.key === 'ArrowUp') { e.preventDefault(); over ? null : guess('higher'); }
-  if (e.key === 'ArrowDown') { e.preventDefault(); over ? null : guess('lower'); }
-  if (e.key === 'Enter' && over) restart();
-});
-
-try { best = parseInt(localStorage.getItem('kvk_best') || '0', 10) || 0; } catch(e){ best = 0; }
-restart();
-</script>
-</body>
-</html>
